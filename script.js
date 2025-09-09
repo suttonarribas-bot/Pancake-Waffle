@@ -21,6 +21,7 @@ const sampleImages = document.querySelectorAll('.sample-img');
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing app...');
     initializeApp();
 });
 
@@ -54,114 +55,93 @@ function setupEventListeners() {
     console.log('Upload area:', uploadArea);
     console.log('Image input:', imageInput);
 
-    // Upload area click - opens file explorer
+    // Simple click handler for upload area
     if (uploadArea) {
-        uploadArea.addEventListener('click', (e) => {
-            console.log('Upload area clicked');
+        uploadArea.onclick = function(e) {
+            console.log('Upload area clicked!');
             e.preventDefault();
-            e.stopPropagation();
             if (imageInput) {
+                console.log('Triggering file input click');
                 imageInput.click();
             } else {
-                console.error('Image input not found');
+                console.error('Image input not found!');
             }
-        });
+        };
     } else {
-        console.error('Upload area not found');
+        console.error('Upload area not found!');
     }
 
-    // File input change - handles file selection
+    // Simple change handler for file input
     if (imageInput) {
-        imageInput.addEventListener('change', (e) => {
-            console.log('File input changed');
-            handleFileSelect(e);
-        });
+        imageInput.onchange = function(e) {
+            console.log('File input changed!');
+            const file = e.target.files[0];
+            if (file) {
+                console.log('File selected:', file.name);
+                handleFile(file);
+            }
+        };
     } else {
-        console.error('Image input not found');
+        console.error('Image input not found!');
     }
 
-    // Drag and drop events
+    // Drag and drop handlers
     if (uploadArea) {
-        uploadArea.addEventListener('dragover', (e) => {
+        uploadArea.ondragover = function(e) {
             e.preventDefault();
-            e.stopPropagation();
-            handleDragOver(e);
-        });
+            uploadArea.classList.add('dragover');
+        };
         
-        uploadArea.addEventListener('dragleave', (e) => {
+        uploadArea.ondragleave = function(e) {
             e.preventDefault();
-            e.stopPropagation();
-            handleDragLeave(e);
-        });
+            uploadArea.classList.remove('dragover');
+        };
         
-        uploadArea.addEventListener('drop', (e) => {
+        uploadArea.ondrop = function(e) {
             e.preventDefault();
-            e.stopPropagation();
-            handleDrop(e);
-        });
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            console.log('Files dropped:', files.length);
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        };
     }
 
-    // Classify button
+    // Other button handlers
     if (classifyBtn) {
-        classifyBtn.addEventListener('click', classifyImage);
+        classifyBtn.onclick = classifyImage;
     }
 
-    // Reset button
     if (resetBtn) {
-        resetBtn.addEventListener('click', resetApp);
+        resetBtn.onclick = resetApp;
     }
 
     // Sample image clicks
     if (sampleImages && sampleImages.length > 0) {
         sampleImages.forEach(img => {
-            img.addEventListener('click', () => {
+            img.onclick = function() {
                 const imageSrc = img.src;
                 loadImageFromSrc(imageSrc);
-            });
+            };
         });
     }
-}
 
-function handleDragOver(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (uploadArea) {
-        uploadArea.classList.add('dragover');
-    }
-}
-
-function handleDragLeave(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (uploadArea) {
-        uploadArea.classList.remove('dragover');
+    // Test button
+    const testBtn = document.getElementById('testUploadBtn');
+    if (testBtn) {
+        testBtn.onclick = function() {
+            console.log('Test button clicked!');
+            if (imageInput) {
+                console.log('Triggering file input from test button');
+                imageInput.click();
+            } else {
+                console.error('Image input not found in test button');
+            }
+        };
     }
 }
 
-function handleDrop(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (uploadArea) {
-        uploadArea.classList.remove('dragover');
-    }
-    
-    const files = e.dataTransfer.files;
-    console.log('Files dropped:', files.length);
-    if (files.length > 0) {
-        handleFile(files[0]);
-    }
-}
-
-function handleFileSelect(e) {
-    console.log('File select event triggered');
-    const file = e.target.files[0];
-    console.log('Selected file:', file);
-    if (file) {
-        handleFile(file);
-    } else {
-        console.log('No file selected');
-    }
-}
 
 function handleFile(file) {
     console.log('Handling file:', file.name, file.type, file.size);
