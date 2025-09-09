@@ -9,6 +9,19 @@ class PancakeWaffleClassifier {
     async loadModel() {
         try {
             console.log('Loading MobileNet model for feature extraction...');
+            
+            // Check if TensorFlow.js is available
+            if (typeof tf === 'undefined') {
+                console.error('TensorFlow.js not loaded');
+                return false;
+            }
+            
+            // Check if MobileNet is available
+            if (typeof mobilenet === 'undefined') {
+                console.error('MobileNet not loaded');
+                return false;
+            }
+            
             this.model = await mobilenet.load();
             this.isLoaded = true;
             console.log('Model loaded successfully!');
