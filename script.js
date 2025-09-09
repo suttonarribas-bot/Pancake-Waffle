@@ -1,22 +1,10 @@
 // Global variables
 let isModelLoaded = true; // Always ready for our simple classifier
 
-// DOM elements
-const uploadArea = document.getElementById('uploadArea');
-const imageInput = document.getElementById('imageInput');
-const previewSection = document.getElementById('previewSection');
-const previewImage = document.getElementById('previewImage');
-const classifyBtn = document.getElementById('classifyBtn');
-const resultSection = document.getElementById('resultSection');
-const resultCard = document.getElementById('resultCard');
-const resultIcon = document.getElementById('resultIcon');
-const resultTitle = document.getElementById('resultTitle');
-const resultConfidence = document.getElementById('resultConfidence');
-const resetBtn = document.getElementById('resetBtn');
-const loading = document.getElementById('loading');
-
-// Sample images
-const sampleImages = document.querySelectorAll('.sample-img');
+// DOM elements - will be set after DOM loads
+let uploadArea, imageInput, previewSection, previewImage, classifyBtn;
+let resultSection, resultCard, resultIcon, resultTitle, resultConfidence, resetBtn, loading;
+let sampleImages;
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
@@ -27,12 +15,40 @@ document.addEventListener('DOMContentLoaded', function() {
 async function initializeApp() {
     console.log('Initializing Pancake vs Waffle Classifier...');
     
+    // Get DOM elements
+    getDOMElements();
+    
     // Set up event listeners
     setupEventListeners();
     
     // Show ready message
     showNotification('Pancake vs Waffle Classifier ready! Click sample images to test.', 'success');
     console.log('Classifier initialized successfully!');
+}
+
+function getDOMElements() {
+    console.log('Getting DOM elements...');
+    
+    uploadArea = document.getElementById('uploadArea');
+    imageInput = document.getElementById('imageInput');
+    previewSection = document.getElementById('previewSection');
+    previewImage = document.getElementById('previewImage');
+    classifyBtn = document.getElementById('classifyBtn');
+    resultSection = document.getElementById('resultSection');
+    resultCard = document.getElementById('resultCard');
+    resultIcon = document.getElementById('resultIcon');
+    resultTitle = document.getElementById('resultTitle');
+    resultConfidence = document.getElementById('resultConfidence');
+    resetBtn = document.getElementById('resetBtn');
+    loading = document.getElementById('loading');
+    sampleImages = document.querySelectorAll('.sample-img');
+    
+    console.log('DOM elements found:');
+    console.log('- Upload area:', uploadArea);
+    console.log('- Image input:', imageInput);
+    console.log('- Classify button:', classifyBtn);
+    console.log('- Reset button:', resetBtn);
+    console.log('- Sample images:', sampleImages.length);
 }
 
 function setupEventListeners() {
@@ -95,11 +111,21 @@ function setupEventListeners() {
 
     // Other button handlers
     if (classifyBtn) {
-        classifyBtn.onclick = classifyImage;
+        classifyBtn.onclick = function() {
+            console.log('Classify button clicked!');
+            classifyImage();
+        };
+    } else {
+        console.error('Classify button not found!');
     }
 
     if (resetBtn) {
-        resetBtn.onclick = resetApp;
+        resetBtn.onclick = function() {
+            console.log('Reset button clicked!');
+            resetApp();
+        };
+    } else {
+        console.error('Reset button not found!');
     }
 
     // Sample image clicks
@@ -131,7 +157,22 @@ function setupEventListeners() {
                 console.error('Image input not found in test button');
             }
         };
+    } else {
+        console.error('Test button not found!');
     }
+    
+    // Add a simple test function to window for debugging
+    window.testClassifier = function() {
+        console.log('Testing classifier...');
+        if (sampleImages && sampleImages.length > 0) {
+            console.log('Clicking first sample image...');
+            sampleImages[0].click();
+        } else {
+            console.log('No sample images found');
+        }
+    };
+    
+    console.log('All event listeners set up. You can test with window.testClassifier()');
 }
 
 
