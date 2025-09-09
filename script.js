@@ -50,70 +50,131 @@ async function initializeApp() {
 }
 
 function setupEventListeners() {
+    console.log('Setting up event listeners...');
+    console.log('Upload area:', uploadArea);
+    console.log('Image input:', imageInput);
+
     // Upload area click - opens file explorer
-    uploadArea.addEventListener('click', (e) => {
-        e.preventDefault();
-        imageInput.click();
-    });
+    if (uploadArea) {
+        uploadArea.addEventListener('click', (e) => {
+            console.log('Upload area clicked');
+            e.preventDefault();
+            e.stopPropagation();
+            if (imageInput) {
+                imageInput.click();
+            } else {
+                console.error('Image input not found');
+            }
+        });
+    } else {
+        console.error('Upload area not found');
+    }
 
     // File input change - handles file selection
-    imageInput.addEventListener('change', handleFileSelect);
+    if (imageInput) {
+        imageInput.addEventListener('change', (e) => {
+            console.log('File input changed');
+            handleFileSelect(e);
+        });
+    } else {
+        console.error('Image input not found');
+    }
 
     // Drag and drop events
-    uploadArea.addEventListener('dragover', handleDragOver);
-    uploadArea.addEventListener('dragleave', handleDragLeave);
-    uploadArea.addEventListener('drop', handleDrop);
+    if (uploadArea) {
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleDragOver(e);
+        });
+        
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleDragLeave(e);
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleDrop(e);
+        });
+    }
 
     // Classify button
-    classifyBtn.addEventListener('click', classifyImage);
+    if (classifyBtn) {
+        classifyBtn.addEventListener('click', classifyImage);
+    }
 
     // Reset button
-    resetBtn.addEventListener('click', resetApp);
+    if (resetBtn) {
+        resetBtn.addEventListener('click', resetApp);
+    }
 
     // Sample image clicks
-    sampleImages.forEach(img => {
-        img.addEventListener('click', () => {
-            const imageSrc = img.src;
-            loadImageFromSrc(imageSrc);
+    if (sampleImages && sampleImages.length > 0) {
+        sampleImages.forEach(img => {
+            img.addEventListener('click', () => {
+                const imageSrc = img.src;
+                loadImageFromSrc(imageSrc);
+            });
         });
-    });
+    }
 }
 
 function handleDragOver(e) {
     e.preventDefault();
-    uploadArea.classList.add('dragover');
+    e.stopPropagation();
+    if (uploadArea) {
+        uploadArea.classList.add('dragover');
+    }
 }
 
 function handleDragLeave(e) {
     e.preventDefault();
-    uploadArea.classList.remove('dragover');
+    e.stopPropagation();
+    if (uploadArea) {
+        uploadArea.classList.remove('dragover');
+    }
 }
 
 function handleDrop(e) {
     e.preventDefault();
-    uploadArea.classList.remove('dragover');
+    e.stopPropagation();
+    if (uploadArea) {
+        uploadArea.classList.remove('dragover');
+    }
     
     const files = e.dataTransfer.files;
+    console.log('Files dropped:', files.length);
     if (files.length > 0) {
         handleFile(files[0]);
     }
 }
 
 function handleFileSelect(e) {
+    console.log('File select event triggered');
     const file = e.target.files[0];
+    console.log('Selected file:', file);
     if (file) {
         handleFile(file);
+    } else {
+        console.log('No file selected');
     }
 }
 
 function handleFile(file) {
+    console.log('Handling file:', file.name, file.type, file.size);
+    
     if (!file.type.startsWith('image/')) {
+        console.log('Invalid file type:', file.type);
         showNotification('Please select a valid image file (JPG, PNG, GIF).', 'error');
         return;
     }
 
     // Check file size (limit to 10MB)
     if (file.size > 10 * 1024 * 1024) {
+        console.log('File too large:', file.size);
         showNotification('File too large. Please select an image smaller than 10MB.', 'error');
         return;
     }
@@ -123,10 +184,12 @@ function handleFile(file) {
 
     const reader = new FileReader();
     reader.onload = function(e) {
+        console.log('File read successfully');
         loadImageFromSrc(e.target.result);
         showNotification('Image loaded successfully!', 'success');
     };
-    reader.onerror = function() {
+    reader.onerror = function(error) {
+        console.error('Error reading file:', error);
         showNotification('Error loading image. Please try again.', 'error');
     };
     reader.readAsDataURL(file);

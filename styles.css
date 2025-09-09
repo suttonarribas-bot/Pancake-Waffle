@@ -74,6 +74,8 @@ header p {
 
 .upload-content {
     pointer-events: none;
+    position: relative;
+    z-index: 1;
 }
 
 .upload-area::before {
