@@ -50,12 +50,13 @@ async function initializeApp() {
 }
 
 function setupEventListeners() {
-    // Upload area click
-    uploadArea.addEventListener('click', () => {
+    // Upload area click - opens file explorer
+    uploadArea.addEventListener('click', (e) => {
+        e.preventDefault();
         imageInput.click();
     });
 
-    // File input change
+    // File input change - handles file selection
     imageInput.addEventListener('change', handleFileSelect);
 
     // Drag and drop events
@@ -107,13 +108,26 @@ function handleFileSelect(e) {
 
 function handleFile(file) {
     if (!file.type.startsWith('image/')) {
-        showNotification('Please select a valid image file.', 'error');
+        showNotification('Please select a valid image file (JPG, PNG, GIF).', 'error');
         return;
     }
+
+    // Check file size (limit to 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+        showNotification('File too large. Please select an image smaller than 10MB.', 'error');
+        return;
+    }
+
+    // Show loading state
+    showNotification('Loading image...', 'info');
 
     const reader = new FileReader();
     reader.onload = function(e) {
         loadImageFromSrc(e.target.result);
+        showNotification('Image loaded successfully!', 'success');
+    };
+    reader.onerror = function() {
+        showNotification('Error loading image. Please try again.', 'error');
     };
     reader.readAsDataURL(file);
 }
