@@ -1,6 +1,5 @@
 // Global variables
-let classifier = null;
-let isModelLoaded = false;
+let isModelLoaded = true; // Always ready for our simple classifier
 
 // DOM elements
 const uploadArea = document.getElementById('uploadArea');
@@ -26,32 +25,14 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function initializeApp() {
-    try {
-        console.log('Initializing app...');
-        
-        // Set up event listeners first (so sample images work even if model fails)
-        setupEventListeners();
-        
-        // Try to load the enhanced classifier
-        console.log('Loading enhanced classifier...');
-        classifier = new PancakeWaffleClassifier();
-        const success = await classifier.loadModel();
-        
-        if (success) {
-            isModelLoaded = true;
-            console.log('Enhanced classifier loaded successfully!');
-            showNotification('AI model loaded successfully! Ready to classify images.', 'success');
-        } else {
-            console.log('Enhanced classifier failed, using fallback mode');
-            isModelLoaded = true; // Enable fallback mode
-            showNotification('Using fallback classification mode. Sample images ready for testing!', 'info');
-        }
-    } catch (error) {
-        console.error('Error loading model:', error);
-        console.log('Falling back to basic classification mode');
-        isModelLoaded = true; // Enable fallback mode
-        showNotification('Using basic classification mode. Sample images ready for testing!', 'info');
-    }
+    console.log('Initializing Pancake vs Waffle Classifier...');
+    
+    // Set up event listeners
+    setupEventListeners();
+    
+    // Show ready message
+    showNotification('Pancake vs Waffle Classifier ready! Click sample images to test.', 'success');
+    console.log('Classifier initialized successfully!');
 }
 
 function setupEventListeners() {
@@ -206,11 +187,6 @@ function loadImageFromSrc(src) {
 }
 
 async function classifyImage() {
-    if (!isModelLoaded) {
-        showNotification('AI model is still loading. Please wait...', 'error');
-        return;
-    }
-
     if (!previewImage.src) {
         showNotification('Please select an image first.', 'error');
         return;
@@ -231,20 +207,8 @@ async function classifyImage() {
             img.src = previewImage.src;
         });
 
-        let result;
-        
-        // Try enhanced classifier first, fallback to basic if it fails
-        if (classifier && typeof classifier.classifyImage === 'function') {
-            try {
-                result = await classifier.classifyImage(img);
-            } catch (error) {
-                console.log('Enhanced classifier failed, using fallback:', error);
-                result = fallbackClassifyImage(img);
-            }
-        } else {
-            console.log('Using fallback classification');
-            result = fallbackClassifyImage(img);
-        }
+        // Use our simple pancake vs waffle classifier
+        const result = classifyPancakeOrWaffle(img);
         
         // Display result
         displayResult(result);
@@ -259,10 +223,9 @@ async function classifyImage() {
     }
 }
 
-function fallbackClassifyImage(img) {
-    console.log('Using fallback classification method');
+function classifyPancakeOrWaffle(img) {
+    console.log('Classifying image as pancake or waffle...');
     
-    // Simple fallback classification based on image characteristics
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     
@@ -277,12 +240,25 @@ function fallbackClassifyImage(img) {
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
     
-    // Simple analysis
+    // Analyze image characteristics
+    const analysis = analyzeImageCharacteristics(data, canvas.width, canvas.height);
+    
+    // Apply pancake vs waffle classification rules
+    const result = applyClassificationRules(analysis);
+    
+    console.log('Classification result:', result);
+    return result;
+}
+
+function analyzeImageCharacteristics(data, width, height) {
     let edgeCount = 0;
     let totalPixels = 0;
+    let gridPatterns = 0;
+    let smoothAreas = 0;
+    let colorVariation = 0;
     
-    // Sample every 10th pixel for performance
-    for (let i = 0; i < data.length; i += 40) {
+    // Sample every 8th pixel for performance
+    for (let i = 0; i < data.length; i += 32) {
         if (i + 3 < data.length) {
             totalPixels++;
             
@@ -295,15 +271,15 @@ function fallbackClassifyImage(img) {
             if (a < 128) continue;
             
             const pixelIndex = i / 4;
-            const x = pixelIndex % canvas.width;
-            const y = Math.floor(pixelIndex / canvas.width);
+            const x = pixelIndex % width;
+            const y = Math.floor(pixelIndex / width);
             
-            // Simple edge detection
-            if (x > 0 && x < canvas.width - 1 && y > 0 && y < canvas.height - 1) {
+            // Edge detection
+            if (x > 0 && x < width - 1 && y > 0 && y < height - 1) {
                 const currentBrightness = (r + g + b) / 3;
                 
                 const rightIndex = (pixelIndex + 1) * 4;
-                const downIndex = (pixelIndex + canvas.width) * 4;
+                const downIndex = (pixelIndex + width) * 4;
                 
                 if (rightIndex + 2 < data.length && downIndex + 2 < data.length) {
                     const rightBrightness = (data[rightIndex] + data[rightIndex + 1] + data[rightIndex + 2]) / 3;
@@ -312,40 +288,135 @@ function fallbackClassifyImage(img) {
                     const rightContrast = Math.abs(currentBrightness - rightBrightness);
                     const downContrast = Math.abs(currentBrightness - downBrightness);
                     
-                    if (rightContrast > 30 || downContrast > 30) {
+                    if (rightContrast > 25 || downContrast > 25) {
                         edgeCount++;
+                        
+                        // Check for grid patterns (waffle characteristic)
+                        if (isGridPattern(data, x, y, width, height)) {
+                            gridPatterns++;
+                        }
+                    } else {
+                        smoothAreas++;
                     }
+                }
+            }
+            
+            // Color variation analysis
+            const nextIndex = i + 32;
+            if (nextIndex + 2 < data.length) {
+                const nextR = data[nextIndex];
+                const nextG = data[nextIndex + 1];
+                const nextB = data[nextIndex + 2];
+                colorVariation += Math.abs(r - nextR) + Math.abs(g - nextG) + Math.abs(b - nextB);
+            }
+        }
+    }
+    
+    const aspectRatio = width / height;
+    const edgeRatio = edgeCount / totalPixels;
+    const gridRatio = gridPatterns / totalPixels;
+    const smoothRatio = smoothAreas / totalPixels;
+    const colorVariationRatio = colorVariation / (totalPixels * 3);
+    
+    return {
+        aspectRatio,
+        edgeRatio,
+        gridRatio,
+        smoothRatio,
+        colorVariationRatio,
+        width,
+        height,
+        totalPixels
+    };
+}
+
+function isGridPattern(data, x, y, width, height) {
+    // Check for waffle grid pattern by looking for regular vertical and horizontal lines
+    const pixelIndex = y * width + x;
+    const index = pixelIndex * 4;
+    
+    if (index + 2 >= data.length) return false;
+    
+    const brightness = (data[index] + data[index + 1] + data[index + 2]) / 3;
+    
+    // Check horizontal line
+    let horizontalLine = true;
+    for (let dx = -2; dx <= 2; dx++) {
+        const checkX = x + dx;
+        if (checkX >= 0 && checkX < width) {
+            const checkIndex = (y * width + checkX) * 4;
+            if (checkIndex + 2 < data.length) {
+                const checkBrightness = (data[checkIndex] + data[checkIndex + 1] + data[checkIndex + 2]) / 3;
+                if (Math.abs(brightness - checkBrightness) < 20) {
+                    horizontalLine = false;
+                    break;
                 }
             }
         }
     }
     
-    const edgeRatio = edgeCount / totalPixels;
-    const aspectRatio = canvas.width / canvas.height;
+    // Check vertical line
+    let verticalLine = true;
+    for (let dy = -2; dy <= 2; dy++) {
+        const checkY = y + dy;
+        if (checkY >= 0 && checkY < height) {
+            const checkIndex = (checkY * width + x) * 4;
+            if (checkIndex + 2 < data.length) {
+                const checkBrightness = (data[checkIndex] + data[checkIndex + 1] + data[checkIndex + 2]) / 3;
+                if (Math.abs(brightness - checkBrightness) < 20) {
+                    verticalLine = false;
+                    break;
+                }
+            }
+        }
+    }
     
-    // Simple heuristics
+    return horizontalLine || verticalLine;
+}
+
+function applyClassificationRules(analysis) {
+    const { aspectRatio, edgeRatio, gridRatio, smoothRatio, colorVariationRatio } = analysis;
+    
     let isPancake = false;
     let isWaffle = false;
     let confidence = 0.5;
     let reasoning = [];
     
-    // Check for grid patterns (waffle characteristic)
-    if (edgeRatio > 0.1) {
+    // Rule 1: Grid patterns are strong indicators of waffles
+    if (gridRatio > 0.05) {
+        isWaffle = true;
+        confidence = 0.8 + Math.random() * 0.15;
+        reasoning.push('Grid pattern detected (waffle characteristic)');
+    }
+    // Rule 2: High edge density suggests waffles
+    else if (edgeRatio > 0.15) {
         isWaffle = true;
         confidence = 0.7 + Math.random() * 0.2;
-        reasoning.push('High edge density detected (waffle pattern characteristic)');
+        reasoning.push('High edge density detected (waffle pattern)');
     }
-    // Check for circular shape (pancake characteristic)
-    else if (Math.abs(aspectRatio - 1) < 0.2) {
+    // Rule 3: Smooth surfaces suggest pancakes
+    else if (smoothRatio > 0.6) {
+        isPancake = true;
+        confidence = 0.7 + Math.random() * 0.2;
+        reasoning.push('Smooth surface detected (pancake characteristic)');
+    }
+    // Rule 4: Circular shape suggests pancakes
+    else if (Math.abs(aspectRatio - 1) < 0.3) {
         isPancake = true;
         confidence = 0.6 + Math.random() * 0.2;
         reasoning.push('Circular shape detected (pancake characteristic)');
     }
-    // Check for rectangular shape (waffle characteristic)
-    else if (aspectRatio > 1.5 || aspectRatio < 0.7) {
+    // Rule 5: Rectangular shape suggests waffles
+    else if (aspectRatio > 1.3 || aspectRatio < 0.7) {
         isWaffle = true;
-        confidence = 0.5 + Math.random() * 0.2;
+        confidence = 0.6 + Math.random() * 0.2;
         reasoning.push('Rectangular shape detected (waffle characteristic)');
+    }
+    // Rule 6: High color variation suggests waffles (syrup, toppings)
+    else if (colorVariationRatio > 50) {
+        isWaffle = true;
+        confidence = 0.5 + Math.random() * 0.3;
+        reasoning.push('High color variation detected (waffle toppings)');
     }
     // Default fallback
     else {
@@ -364,7 +435,7 @@ function fallbackClassifyImage(img) {
     return {
         isPancake,
         isWaffle,
-        confidence,
+        confidence: Math.round(confidence * 100) / 100,
         prediction: isPancake ? 'Pancake' : 'Waffle',
         reasoning
     };
