@@ -1,0 +1,13 @@
+{
+  "name": "pancake-waffle-classifier",
+  "version": "1.0.0",
+  "description": "A static web app that classifies images as pancakes or waffles",
+  "main": "index.html",
+  "scripts": {
+    "build": "echo 'Static site - no build required'",
+    "start": "echo 'Open index.html in your browser'"
+  },
+  "keywords": ["pancake", "waffle", "classifier", "static", "html"],
+  "author": "suttonarribas-bot",
+  "license": "MIT"
+}

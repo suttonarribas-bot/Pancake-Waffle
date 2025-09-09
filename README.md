@@ -1,18 +1,15 @@
 # 🥞 Pancake vs Waffle Classifier 🧇
 
-A web application that classifies images as either pancakes or waffles. Available in two versions:
+A static web application that classifies images as either pancakes or waffles using client-side JavaScript.
 
-## 🌐 Static Version (Netlify Ready)
+## ✨ Features
 - **Client-side Classification**: JavaScript-based image analysis
-- **No Server Required**: Works on static hosting like Netlify
+- **No Server Required**: Pure static HTML/CSS/JavaScript
 - **Sample Images**: Click to test with pre-loaded images
 - **File Upload**: Upload your own images for classification
-
-## 🐍 Python Version (Advanced)
-- **Server-side Processing**: Flask web application with OpenCV
-- **Computer Vision**: Advanced image analysis using OpenCV
-- **Real Classification**: Hough line detection, edge analysis, shape recognition
-- **Professional Features**: Confidence scoring, accuracy tracking
+- **Real-time Analysis**: Edge detection and shape analysis
+- **Confidence Scoring**: Based on image characteristics
+- **Responsive Design**: Works on desktop and mobile
 
 ## How It Works
 
