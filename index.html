@@ -10,27 +10,8 @@
     <div class="container">
         <header>
             <h1>🥞 Pancake vs Waffle Classifier 🧇</h1>
-            <p>Upload an image to see if it's a pancake or a waffle!</p>
+            <p>Click any image below to see if it's a pancake or a waffle!</p>
         </header>
-
-        <div class="upload-section">
-            <div class="upload-area" id="uploadArea">
-                <div class="upload-content">
-                    <div class="upload-icon">📁</div>
-                    <p><strong>Click here to browse files on your computer</strong></p>
-                    <p class="upload-hint">Supports JPG, PNG, GIF formats • Or drag and drop an image</p>
-                </div>
-                <input type="file" id="imageInput" accept="image/*" style="display: none;">
-            </div>
-        </div>
-
-        <div class="preview-section" id="previewSection" style="display: none;">
-            <h3>Image Preview</h3>
-            <div class="image-preview">
-                <img id="previewImage" alt="Preview">
-            </div>
-            <button id="classifyBtn" class="classify-btn">Classify Image</button>
-        </div>
 
         <div class="result-section" id="resultSection" style="display: none;">
             <h3>Classification Result</h3>
@@ -44,33 +25,27 @@
             <button id="resetBtn" class="reset-btn">Try Another Image</button>
         </div>
 
-        <div class="loading" id="loading" style="display: none;">
-            <div class="spinner"></div>
-            <p>Analyzing image...</p>
-        </div>
-
         <div class="sample-images">
-            <h3>Sample Images - Click to Test Classification</h3>
-            <p class="sample-hint">Click any image below to test the AI classifier!</p>
+            <h3>Click Any Image to Test Classification</h3>
             <div class="sample-grid">
                 <div class="sample-category">
                     <h4>🥞 Pancakes</h4>
                     <div class="sample-images-grid">
-                        <img src="fluffy-pancakes-feature.jpg" alt="Pancake 1" class="sample-img clickable" data-type="pancake" title="Click to classify this pancake">
-                        <img src="Pancake-Recipe-1.jpg" alt="Pancake 2" class="sample-img clickable" data-type="pancake" title="Click to classify this pancake">
-                        <img src="pancakes1.jpeg" alt="Pancake 3" class="sample-img clickable" data-type="pancake" title="Click to classify this pancake">
-                        <img src="pancakes2.jpeg" alt="Pancake 4" class="sample-img clickable" data-type="pancake" title="Click to classify this pancake">
-                        <img src="pancakes3.jpg" alt="Pancake 5" class="sample-img clickable" data-type="pancake" title="Click to classify this pancake">
+                        <img src="fluffy-pancakes-feature.jpg" alt="Pancake 1" class="sample-img" data-type="pancake">
+                        <img src="Pancake-Recipe-1.jpg" alt="Pancake 2" class="sample-img" data-type="pancake">
+                        <img src="pancakes1.jpeg" alt="Pancake 3" class="sample-img" data-type="pancake">
+                        <img src="pancakes2.jpeg" alt="Pancake 4" class="sample-img" data-type="pancake">
+                        <img src="pancakes3.jpg" alt="Pancake 5" class="sample-img" data-type="pancake">
                     </div>
                 </div>
                 <div class="sample-category">
                     <h4>🧇 Waffles</h4>
                     <div class="sample-images-grid">
-                        <img src="chocolate-chip-waffles-featured.jpg" alt="Waffle 1" class="sample-img clickable" data-type="waffle" title="Click to classify this waffle">
-                        <img src="waffle.jpg" alt="Waffle 2" class="sample-img clickable" data-type="waffle" title="Click to classify this waffle">
-                        <img src="waffles1.jpg" alt="Waffle 3" class="sample-img clickable" data-type="waffle" title="Click to classify this waffle">
-                        <img src="waffles2.jpg" alt="Waffle 4" class="sample-img clickable" data-type="waffle" title="Click to classify this waffle">
-                        <img src="Brownie-Waffles-35.jpg" alt="Waffle 5" class="sample-img clickable" data-type="waffle" title="Click to classify this waffle">
+                        <img src="chocolate-chip-waffles-featured.jpg" alt="Waffle 1" class="sample-img" data-type="waffle">
+                        <img src="waffle.jpg" alt="Waffle 2" class="sample-img" data-type="waffle">
+                        <img src="waffles1.jpg" alt="Waffle 3" class="sample-img" data-type="waffle">
+                        <img src="waffles2.jpg" alt="Waffle 4" class="sample-img" data-type="waffle">
+                        <img src="Brownie-Waffles-35.jpg" alt="Waffle 5" class="sample-img" data-type="waffle">
                     </div>
                 </div>
             </div>

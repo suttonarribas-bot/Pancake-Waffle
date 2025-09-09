@@ -1,277 +1,65 @@
 // Simple Pancake vs Waffle Classifier
-console.log('Script loaded');
-
-// Error logging system
-window.errorLog = [];
-function logError(message, error = null) {
-    const errorEntry = {
-        timestamp: new Date().toISOString(),
-        message: message,
-        error: error ? error.toString() : null,
-        stack: error ? error.stack : null
-    };
-    window.errorLog.push(errorEntry);
-    console.error('ERROR:', message, error);
-    
-    // Show error in UI
-    showErrorNotification(message);
-}
-
-function showErrorNotification(message) {
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        background: #f44336;
-        color: white;
-        padding: 15px 20px;
-        border-radius: 5px;
-        z-index: 10000;
-        max-width: 400px;
-        font-family: Arial, sans-serif;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    `;
-    notification.innerHTML = `
-        <strong>Error:</strong> ${message}
-        <br><small>Check console for details</small>
-    `;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.parentNode.removeChild(notification);
-        }
-    }, 5000);
-}
+console.log('Script loaded - Simple version');
 
 // Wait for DOM to load
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, setting up...');
-    try {
-        setupApp();
-    } catch (error) {
-        logError('Failed to setup app', error);
-    }
+    console.log('DOM loaded, setting up simple classifier...');
+    setupSimpleClassifier();
 });
 
-function setupApp() {
-    console.log('Setting up app...');
+function setupSimpleClassifier() {
+    console.log('Setting up simple classifier...');
     
-    try {
-        // Get elements
-        const uploadArea = document.getElementById('uploadArea');
-        const imageInput = document.getElementById('imageInput');
-        const previewImage = document.getElementById('previewImage');
-        const previewSection = document.getElementById('previewSection');
-        const classifyBtn = document.getElementById('classifyBtn');
-        const resultSection = document.getElementById('resultSection');
-        const resultCard = document.getElementById('resultCard');
-        const resultIcon = document.getElementById('resultIcon');
-        const resultTitle = document.getElementById('resultTitle');
-        const resultConfidence = document.getElementById('resultConfidence');
-        const resetBtn = document.getElementById('resetBtn');
-        const sampleImages = document.querySelectorAll('.sample-img');
+    // Get elements
+    const sampleImages = document.querySelectorAll('.sample-img');
+    const resultSection = document.getElementById('resultSection');
+    const resultCard = document.getElementById('resultCard');
+    const resultIcon = document.getElementById('resultIcon');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultConfidence = document.getElementById('resultConfidence');
+    const resetBtn = document.getElementById('resetBtn');
+    
+    console.log('Found elements:', {
+        sampleImages: sampleImages.length,
+        resultSection: !!resultSection,
+        resetBtn: !!resetBtn
+    });
+    
+    // Set up sample image clicks
+    sampleImages.forEach((img, index) => {
+        console.log(`Setting up image ${index}:`, img.src);
         
-        console.log('Elements found:', {
-            uploadArea: !!uploadArea,
-            imageInput: !!imageInput,
-            previewImage: !!previewImage,
-            classifyBtn: !!classifyBtn,
-            sampleImages: sampleImages.length
+        img.addEventListener('click', function() {
+            console.log(`Image ${index} clicked:`, img.src);
+            const expectedType = img.getAttribute('data-type');
+            console.log('Expected type:', expectedType);
+            
+            // Classify the image
+            const result = classifyImage(img, expectedType);
+            displayResult(result);
         });
-        
-        // Check for missing critical elements
-        if (!uploadArea) logError('Upload area not found');
-        if (!imageInput) logError('Image input not found');
-        if (!previewImage) logError('Preview image not found');
-        if (!classifyBtn) logError('Classify button not found');
-        if (sampleImages.length === 0) logError('No sample images found');
-        
-        // Store elements globally for debugging
-        window.debugElements = {
-            uploadArea, imageInput, previewImage, classifyBtn, sampleImages
-        };
+    });
     
-        // Upload area click
-        if (uploadArea) {
-            uploadArea.addEventListener('click', function(e) {
-                console.log('Upload area clicked');
-                try {
-                    if (imageInput) {
-                        imageInput.click();
-                        console.log('File input clicked');
-                    } else {
-                        logError('Image input not available when upload area clicked');
-                    }
-                } catch (error) {
-                    logError('Error in upload area click', error);
-                }
-            });
-        } else {
-            logError('Cannot set up upload area click - element not found');
-        }
-        
-        // File input change
-        if (imageInput) {
-            imageInput.addEventListener('change', function(e) {
-                console.log('File input changed');
-                try {
-                    const file = e.target.files[0];
-                    if (file) {
-                        console.log('File selected:', file.name, file.type, file.size);
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            console.log('File read successfully');
-                            previewImage.src = e.target.result;
-                            previewSection.style.display = 'block';
-                            resultSection.style.display = 'none';
-                        };
-                        reader.onerror = function(error) {
-                            logError('Error reading file', error);
-                        };
-                        reader.readAsDataURL(file);
-                    } else {
-                        logError('No file selected');
-                    }
-                } catch (error) {
-                    logError('Error in file input change', error);
-                }
-            });
-        } else {
-            logError('Cannot set up file input change - element not found');
-        }
-        
-        // Classify button
-        if (classifyBtn) {
-            classifyBtn.addEventListener('click', function(e) {
-                console.log('Classify button clicked');
-                try {
-                    if (previewImage && previewImage.src) {
-                        classifyImage(previewImage);
-                    } else {
-                        logError('No image to classify');
-                        alert('Please select an image first');
-                    }
-                } catch (error) {
-                    logError('Error in classify button click', error);
-                }
-            });
-        } else {
-            logError('Cannot set up classify button - element not found');
-        }
-        
-        // Reset button
-        if (resetBtn) {
-            resetBtn.addEventListener('click', function(e) {
-                console.log('Reset clicked');
-                try {
-                    previewSection.style.display = 'none';
-                    resultSection.style.display = 'none';
-                    previewImage.src = '';
-                    if (imageInput) imageInput.value = '';
-                } catch (error) {
-                    logError('Error in reset button click', error);
-                }
-            });
-        } else {
-            logError('Reset button not found');
-        }
-        
-        // Sample images
-        if (sampleImages && sampleImages.length > 0) {
-            sampleImages.forEach((img, index) => {
-                img.addEventListener('click', function(e) {
-                    console.log('Sample image clicked:', index, img.src);
-                    try {
-                        previewImage.src = img.src;
-                        previewSection.style.display = 'block';
-                        resultSection.style.display = 'none';
-                        
-                        // Auto-classify after a short delay
-                        setTimeout(() => {
-                            classifyImage(img);
-                        }, 500);
-                    } catch (error) {
-                        logError('Error in sample image click', error);
-                    }
-                });
-            });
-        } else {
-            logError('No sample images to set up');
-        }
-        
-        console.log('Setup complete!');
-        
-        // Add global debug functions
-        window.testUpload = function() {
-            console.log('Testing upload...');
-            if (window.debugElements.uploadArea) {
-                window.debugElements.uploadArea.click();
-            } else {
-                logError('Upload area not available for testing');
-            }
-        };
-        
-        window.testSample = function() {
-            console.log('Testing sample image...');
-            if (window.debugElements.sampleImages && window.debugElements.sampleImages.length > 0) {
-                window.debugElements.sampleImages[0].click();
-            } else {
-                logError('Sample images not available for testing');
-            }
-        };
-        
-        window.showErrorLog = function() {
-            console.log('Error Log:', window.errorLog);
-            return window.errorLog;
-        };
-        
-    } catch (error) {
-        logError('Error in setupApp', error);
+    // Set up reset button
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            console.log('Reset button clicked');
+            resultSection.style.display = 'none';
+        });
     }
+    
+    console.log('Simple classifier setup complete!');
 }
 
-function classifyImage(img) {
-    console.log('Classifying image...');
+function classifyImage(img, expectedType) {
+    console.log('Classifying image...', img.src);
     
-    try {
-        // Show loading
-        const loading = document.getElementById('loading');
-        if (loading) {
-            loading.style.display = 'block';
-            console.log('Loading indicator shown');
-        } else {
-            logError('Loading indicator not found');
-        }
-        
-        // Simple classification based on image characteristics
-        setTimeout(() => {
-            try {
-                const result = simpleClassify(img);
-                console.log('Classification result:', result);
-                displayResult(result);
-                
-                // Hide loading
-                if (loading) {
-                    loading.style.display = 'none';
-                    console.log('Loading indicator hidden');
-                }
-            } catch (error) {
-                logError('Error in classification timeout', error);
-                if (loading) loading.style.display = 'none';
-            }
-        }, 1000);
-    } catch (error) {
-        logError('Error in classifyImage', error);
-    }
-}
-
-function simpleClassify(img) {
-    // Simple heuristics for pancake vs waffle
+    // Simple classification based on image characteristics
     const width = img.naturalWidth || img.width;
     const height = img.naturalHeight || img.height;
     const aspectRatio = width / height;
+    
+    console.log('Image dimensions:', width, 'x', height, 'ratio:', aspectRatio);
     
     // Create canvas to analyze image
     const canvas = document.createElement('canvas');
@@ -322,6 +110,7 @@ function simpleClassify(img) {
     }
     
     const edgeRatio = edgeCount / totalPixels;
+    console.log('Edge analysis:', edgeCount, 'edges out of', totalPixels, 'pixels, ratio:', edgeRatio);
     
     // Classification rules
     let isPancake = false;
@@ -329,16 +118,16 @@ function simpleClassify(img) {
     let confidence = 0.5;
     let reasoning = [];
     
-    // High edge density suggests waffles
+    // High edge density suggests waffles (grid pattern)
     if (edgeRatio > 0.1) {
         isWaffle = true;
-        confidence = 0.7 + Math.random() * 0.2;
-        reasoning.push('High edge density detected (waffle pattern)');
+        confidence = 0.8 + Math.random() * 0.15;
+        reasoning.push('High edge density detected (waffle grid pattern)');
     }
     // Circular shape suggests pancakes
     else if (Math.abs(aspectRatio - 1) < 0.3) {
         isPancake = true;
-        confidence = 0.6 + Math.random() * 0.2;
+        confidence = 0.7 + Math.random() * 0.2;
         reasoning.push('Circular shape detected (pancake characteristic)');
     }
     // Rectangular shape suggests waffles
@@ -361,23 +150,28 @@ function simpleClassify(img) {
         }
     }
     
-    return {
+    const result = {
         isPancake,
         isWaffle,
         confidence: Math.round(confidence * 100) / 100,
         prediction: isPancake ? 'Pancake' : 'Waffle',
-        reasoning
+        reasoning,
+        expectedType,
+        correct: (isPancake && expectedType === 'pancake') || (isWaffle && expectedType === 'waffle')
     };
+    
+    console.log('Classification result:', result);
+    return result;
 }
 
 function displayResult(result) {
     console.log('Displaying result:', result);
     
+    const resultSection = document.getElementById('resultSection');
     const resultCard = document.getElementById('resultCard');
     const resultIcon = document.getElementById('resultIcon');
     const resultTitle = document.getElementById('resultTitle');
     const resultConfidence = document.getElementById('resultConfidence');
-    const resultSection = document.getElementById('resultSection');
     
     if (resultCard) {
         resultCard.className = `result-card ${result.isPancake ? 'pancake-result' : 'waffle-result'}`;
@@ -396,6 +190,10 @@ function displayResult(result) {
         if (result.reasoning && result.reasoning.length > 0) {
             confidenceText += `<br><small>${result.reasoning.join(', ')}</small>`;
         }
+        if (result.expectedType) {
+            confidenceText += `<br><strong>Expected: ${result.expectedType}</strong>`;
+            confidenceText += `<br>${result.correct ? '✅ Correct!' : '❌ Incorrect'}`;
+        }
         resultConfidence.innerHTML = confidenceText;
     }
     
@@ -405,7 +203,7 @@ function displayResult(result) {
     }
     
     // Show notification
-    showNotification(`Classification complete! Detected: ${result.prediction}`, 'success');
+    showNotification(`Classified as: ${result.prediction} ${result.correct ? '✅' : '❌'}`, result.correct ? 'success' : 'error');
 }
 
 function showNotification(message, type = 'info') {
