@@ -119,12 +119,19 @@ function setupEventListeners() {
 
     // Sample image clicks
     if (sampleImages && sampleImages.length > 0) {
-        sampleImages.forEach(img => {
+        console.log('Setting up sample image clicks for', sampleImages.length, 'images');
+        sampleImages.forEach((img, index) => {
             img.onclick = function() {
+                console.log('Sample image clicked:', index, img.src);
                 const imageSrc = img.src;
+                const expectedType = img.getAttribute('data-type');
+                console.log('Expected type:', expectedType);
                 loadImageFromSrc(imageSrc);
+                showNotification(`Testing with ${expectedType} image...`, 'info');
             };
         });
+    } else {
+        console.log('No sample images found');
     }
 
     // Test button
@@ -182,6 +189,16 @@ function loadImageFromSrc(src) {
     
     // Scroll to preview section
     previewSection.scrollIntoView({ behavior: 'smooth' });
+    
+    // Auto-classify sample images after a short delay
+    setTimeout(() => {
+        if (isModelLoaded) {
+            console.log('Auto-classifying sample image...');
+            classifyImage();
+        } else {
+            console.log('Model not loaded yet, classification will be manual');
+        }
+    }, 1000);
 }
 
 async function classifyImage() {

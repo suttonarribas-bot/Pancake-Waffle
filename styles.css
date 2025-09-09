@@ -256,11 +256,45 @@ header p {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    border: 2px solid transparent;
 }
 
 .sample-img:hover {
     transform: scale(1.05);
     box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    border-color: #667eea;
+}
+
+.sample-img.clickable {
+    cursor: pointer;
+    position: relative;
+}
+
+.sample-img.clickable::after {
+    content: '👆 Click to Test';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.sample-img.clickable:hover::after {
+    opacity: 1;
+}
+
+.sample-hint {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    margin-bottom: 20px;
 }
 
 .pancake-result {
