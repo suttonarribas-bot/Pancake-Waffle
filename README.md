@@ -50,14 +50,15 @@ The classifier analyzes images using several computer vision techniques:
 ## File Structure
 
 ```
-Pancake-Waffle/
-├── app.py                 # Main Flask application
-├── requirements.txt       # Python dependencies
+DataDemo/
+├── index.html            # Main web interface
+├── package.json          # Project configuration
 ├── README.md             # This file
-├── templates/
-│   └── index.html        # Web interface
-├── static/
-│   └── images/           # Sample images directory
+├── Data/                 # Organized image dataset
+│   ├── Pancakes/         # Pancake images (9 total)
+│   └── Waffles/          # Waffle images (7 total)
+├── static/               # Static assets
+├── templates/            # Template files
 └── uploads/              # Temporary upload directory (auto-created)
 ```
 
@@ -90,8 +91,10 @@ The classifier uses the following rules to distinguish pancakes from waffles:
 ## Sample Images
 
 The application includes sample images for testing:
-- 5 Pancake examples
-- 5 Waffle examples
+- 9 Pancake examples (including chocolate chip, stack, and various styles)
+- 7 Waffle examples (including brownie, corner cut, and various styles)
+
+All images are organized in the `Data/` folder with separate subfolders for pancakes and waffles.
 
 ## Dependencies
 
